@@ -1,0 +1,44 @@
+import json
+import random
+import discord
+from discord.ext import commands
+
+fight_results = [
+    "and it was super effective!",
+    "but %user% dodged it!",
+    "and %user% got obliterated!",
+    "but %attacker% missed!",
+    "but they killed each other!",
+    "and it wiped out everything within a five mile radius!",
+    "but in a turn of events, they made up and became friends. Happy ending!",
+    "and it worked!",
+    "and %user% never saw it coming.",
+    "but %user% grabbed the attack and used it against %attacker%!",
+    "but it only scratched %user%!",
+    "and %user% was killed by it.",
+    "but %attacker% activated %user%'s trap card and lost!",
+    "and %user% was killed!"
+]
+
+
+class Fight(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def fight(self, ctx, user:str=None, *, weapon:str=None):
+        """Fight someone with something"""
+        if user is None or user.lower() == ctx.author.mention or user == ctx.author.name.lower() or ctx.guild is not None and ctx.author.nick is not None and user == ctx.author.nick.lower():
+            await ctx.send("{} fought themself but only ended up in a mental hospital!".format(ctx.author.mention))
+            return
+        if weapon is None:
+            await ctx.send("{0} tried to fight {1} with nothing so {1} beat the breaks off of them!".format(ctx.author.mention, user))
+            return
+        await ctx.send("{} used **{}** on **{}** {}".format(ctx.author.mention, weapon, user, random.choice(fight_results).replace("%user%", user).replace("%attacker%", ctx.author.mention)))
+
+
+
+
+
+async def setup(bot):
+    await bot.add_cog(Fight(bot))

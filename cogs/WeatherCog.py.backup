@@ -1,0 +1,40 @@
+import discord
+from discord.ext import commands
+import requests
+
+class WeatherCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(name='weather', aliases=['w'])
+    async def weather(self, ctx, *, location):
+        # Replace YOUR_API_KEY with your actual API key
+        api_key = "b155eaffda6909c08f61d796c6824d41"
+        # Set the base URL for the API
+        base_url = "http://api.openweathermap.org/data/2.5/weather?"
+        # Construct the complete URL with the location and API key
+        complete_url = base_url + "q=" + location + "&appid=" + api_key
+        # Make the API request and get the response
+        response = requests.get(complete_url)
+        # Get the JSON data from the response
+        data = response.json()
+        # Check if the API request was successful
+        if data["cod"] != "404":
+            # Get the current temperature, humidity, and weather description
+            temperature = data["main"]["temp"]
+            humidity = data["main"]["humidity"]
+            description = data["weather"][0]["description"]
+            # Convert temperature from Kelvin to Celsius
+            temperature_c = round(temperature - 273.15, 1)
+            # Construct the weather message
+            weather_message = f"The weather in {location} is currently {description} with a temperature of {temperature_c}°C and humidity of {humidity}%."
+            # Create the embed
+            embed = discord.Embed(title="Weather Report", description=weather_message, color=0x00ff00)
+            # Send the embed to the channel
+            await ctx.send(embed=embed)
+        else:
+            # If the API request was unsuccessful, send an error message
+            await ctx.send("Error: Location not found.")
+
+async def setup(bot):
+  await bot.add_cog(WeatherCog(bot))
